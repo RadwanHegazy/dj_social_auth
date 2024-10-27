@@ -1,0 +1,5 @@
+migrations
+__pycache__
+*.sqlite3
+core/
+manage.py
