@@ -54,7 +54,7 @@ class GoogleAuth(BaseSocialPlatform) :
         json_data = response.json()
         return json_data['access_token']
     
-    def get_user_info(self, code):
+    def get_user_info_by_code(self, code):
         access_token = self.get_access_token(code) 
         response = requests.get(
             self.GOOGLE_USER_INFO_URL,
