@@ -54,7 +54,7 @@ class GoogleAuth(BaseSocialPlatform) :
         json_data = response.json()
         return json_data['access_token']
     
-    def get_user_info(self, code):
+    def get_user_info_by_code(self, code):
         access_token = self.get_access_token(code) 
         response = requests.get(
             self.GOOGLE_USER_INFO_URL,
@@ -73,9 +73,23 @@ class GoogleAuth(BaseSocialPlatform) :
 
 
 class FacebookAuth(BaseSocialPlatform):
+    FB_SOCIAL_AUTH = settings.SOCIAL_AUTH['facebook']
+    FB_REDIRECT_URL = FB_SOCIAL_AUTH['redirect_url']
+    FB_CLIENT_ID = FB_SOCIAL_AUTH['client_id']
+    FB_CLIENT_SECRET = FB_SOCIAL_AUTH['client_secret']
 
-    def get_access_token(self):
-        pass
+    def get_access_token(self):...
 
     def get_auth_url(self):
-        return super().get_auth_url()
+        url = f"https://www.facebook.com/v14.0/dialog/oauth?client_id={self.FB_CLIENT_ID}&redirect_uri={self.FB_REDIRECT_URL}&scope=email,public_profile,user_friends&response_type=token"
+        return url
+    
+    def get_user_info_by_accessToken(self, access_token) :
+        url = f'https://graph.facebook.com/me?access_token={access_token}&fields=id,name,email'
+        response = requests.get(url)
+        
+        if not response.ok :
+            raise ValidationError({'error': 'Invalid token.'})
+        
+        user_info = response.json()
+        return user_info
