@@ -8,9 +8,6 @@ class GoogleAuthView(CreateAPIView) :
     serializer_class = GoogleCodeSerializer
     queryset = []
 
-    def get_serializer_context(self):
-        print(self.request.get_full_path_info())
-        pass
 
 class CreateGoogleAuthLinkView(APIView) :
     __google_auth = GoogleAuth()
