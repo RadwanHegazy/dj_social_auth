@@ -71,7 +71,6 @@ class GoogleAuth(BaseSocialPlatform) :
         url = f"https://accounts.google.com/o/oauth2/v2/auth?scope=email%20profile&access_type=offline&redirect_uri={self.GOOGLE_REDIRECT_URL}&response_type=code&client_id={client_id}"
         return url
 
-
 class FacebookAuth(BaseSocialPlatform):
     FB_SOCIAL_AUTH = settings.SOCIAL_AUTH['facebook']
     FB_REDIRECT_URL = FB_SOCIAL_AUTH['redirect_url']
@@ -93,3 +92,47 @@ class FacebookAuth(BaseSocialPlatform):
         
         user_info = response.json()
         return user_info
+
+
+class GitHubAuth (BaseSocialPlatform) :
+    GITHUB_SOCIAL_AUTH = settings.SOCIAL_AUTH['github']
+    GITHUB_REDIRECT_URL = GITHUB_SOCIAL_AUTH['redirect_url']
+    GITHUB_CLIENT_ID = GITHUB_SOCIAL_AUTH['client_id']
+    GITHUB_CLIENT_SECRET = GITHUB_SOCIAL_AUTH['client_secret']
+
+    def get_access_token(self, code):
+        token_response = requests.post(
+            'https://github.com/login/oauth/access_token',
+            headers={'Accept': 'application/json'},
+            data={
+                'client_id': self.GITHUB_CLIENT_ID,
+                'client_secret': self.GITHUB_CLIENT_SECRET,
+                'code': code
+                }
+            )
+
+        if not token_response.ok:
+            raise ValidationError("Invalid Code")
+        
+        token_json = token_response.json()
+        access_token = token_json.get('access_token', None)
+
+    
+        return access_token
+    
+    def get_user_by_access_token(self, access_token) :
+        user_response = requests.get(
+            'https://api.github.com/user',
+            headers={'Authorization': f'token {access_token}'}
+        )
+        if not user_response.ok :
+            raise ValidationError("Invalid Access Token")
+        
+        user_info = user_response.json()
+        return user_info
+    
+
+    def get_auth_url(self):
+        url = f"https://github.com/login/oauth/authorize?client_id={self.GITHUB_CLIENT_ID}&redirect_uri={self.GITHUB_REDIRECT_URL}&scope=user:email"
+        return url
+    
