@@ -11,19 +11,7 @@ class FacebookSerializer (serializers.Serializer) :
     def create(self, validated_data):
         access_token = validated_data.get('access_token')
         user = self.__fb_auth.get_user_info_by_accessToken(access_token)
-        email = user.get('email')
-        username = email.split("@")[0]
-        try :
-            site_user = User.objects.get(
-                email=email,
-            )
-        except User.DoesNotExist:
-            site_user = User.objects.create(
-                email=email,
-                username=username
-            )
-            site_user.save()
-
+        site_user = self.__fb_auth.save_user_data(user_dict=user)
         return site_user
     
     def to_representation(self, instance):

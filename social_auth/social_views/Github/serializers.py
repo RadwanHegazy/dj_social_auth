@@ -12,16 +12,7 @@ class GithubCodeSerializer (serializers.Serializer) :
         code = validated_data.get('code')
         access_token = self.__github_auth.get_access_token(code)
         user = self.__github_auth.get_user_by_access_token(access_token)
-        username = user.get('login')
-        try :
-            site_user = User.objects.get(
-                username=username,
-            )
-        except User.DoesNotExist:
-            site_user = User.objects.create(
-                username=username,
-            )
-            site_user.save()
+        site_user = self.__github_auth.save_user_data(user_dict=user)
 
         return site_user
     

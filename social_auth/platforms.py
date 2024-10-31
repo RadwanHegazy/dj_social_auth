@@ -1,6 +1,5 @@
 """
-    ALl avaliable platforms for social auth
-
+    ALl avaliable platforms for implement social auth
 """
 
 from abc import ABC, abstractmethod
@@ -20,6 +19,8 @@ class BaseSocialPlatform(ABC) :
     @abstractmethod
     def get_auth_url(self) : ...
 
+    @abstractmethod
+    def save_user_data(self) : ...
 
 
 def generate_tokens_for_user(user) -> dict:
@@ -36,6 +37,7 @@ class GoogleAuth(BaseSocialPlatform) :
     GOOGLE_USER_INFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo'
     GOOGLE_SOCIAL_AUTH = settings.SOCIAL_AUTH['google']
     GOOGLE_REDIRECT_URL = GOOGLE_SOCIAL_AUTH['redirect_url']
+    SAVE_USER_DATA_FUNCTION = GOOGLE_SOCIAL_AUTH['save_user_data']
 
     def get_access_token(self, code):
         data = {
@@ -71,11 +73,16 @@ class GoogleAuth(BaseSocialPlatform) :
         url = f"https://accounts.google.com/o/oauth2/v2/auth?scope=email%20profile&access_type=offline&redirect_uri={self.GOOGLE_REDIRECT_URL}&response_type=code&client_id={client_id}"
         return url
 
+    def save_user_data(self, user_dict)  :
+        user = self.SAVE_USER_DATA_FUNCTION(user=user_dict)
+        return user
+    
 class FacebookAuth(BaseSocialPlatform):
     FB_SOCIAL_AUTH = settings.SOCIAL_AUTH['facebook']
     FB_REDIRECT_URL = FB_SOCIAL_AUTH['redirect_url']
     FB_CLIENT_ID = FB_SOCIAL_AUTH['client_id']
     FB_CLIENT_SECRET = FB_SOCIAL_AUTH['client_secret']
+    SAVE_USER_DATA_FUNCTION = FB_SOCIAL_AUTH['save_user_data']
 
     def get_access_token(self):...
 
@@ -92,13 +99,19 @@ class FacebookAuth(BaseSocialPlatform):
         
         user_info = response.json()
         return user_info
-
+    
+    def save_user_data(self, user_dict)  :
+        user = self.SAVE_USER_DATA_FUNCTION(user=user_dict)
+        return user
+    
 
 class GitHubAuth (BaseSocialPlatform) :
     GITHUB_SOCIAL_AUTH = settings.SOCIAL_AUTH['github']
     GITHUB_REDIRECT_URL = GITHUB_SOCIAL_AUTH['redirect_url']
     GITHUB_CLIENT_ID = GITHUB_SOCIAL_AUTH['client_id']
     GITHUB_CLIENT_SECRET = GITHUB_SOCIAL_AUTH['client_secret']
+    SAVE_USER_DATA_FUNCTION = GITHUB_SOCIAL_AUTH['save_user_data']
+
 
     def get_access_token(self, code):
         token_response = requests.post(
@@ -135,4 +148,8 @@ class GitHubAuth (BaseSocialPlatform) :
     def get_auth_url(self):
         url = f"https://github.com/login/oauth/authorize?client_id={self.GITHUB_CLIENT_ID}&redirect_uri={self.GITHUB_REDIRECT_URL}&scope=user:email"
         return url
+    
+    def save_user_data(self, user_dict)  :
+        user = self.SAVE_USER_DATA_FUNCTION(user=user_dict)
+        return user
     
