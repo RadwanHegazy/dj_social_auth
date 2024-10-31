@@ -8,7 +8,6 @@ class GoogleAuthView(CreateAPIView) :
     serializer_class = GoogleCodeSerializer
     queryset = []
 
-
 class CreateGoogleAuthLinkView(APIView) :
     __google_auth = GoogleAuth()
 
